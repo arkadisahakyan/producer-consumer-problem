@@ -4,7 +4,7 @@
 
 #include "queue.h"
 
-#define CAPACITY 8
+#define CAPACITY 2048
 
 static int* queue;
 static int head;

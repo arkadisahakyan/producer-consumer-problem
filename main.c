@@ -11,7 +11,8 @@ pthread_mutex_t mutex;
 pthread_cond_t pcond;
 pthread_cond_t ccond;
 
-static const unsigned int X = 10000;
+static const unsigned int X = 32768;
+unsigned int iteration_counter = 0;
 
 void* producer(void* args)
 {
@@ -23,6 +24,7 @@ void* producer(void* args)
 		if (queue_is_empty())
 			pthread_cond_signal(&ccond);
 		queue_enqueue(rand() % (9999 + 1 - 0) + 0);
+		iteration_counter++;
 		pthread_mutex_unlock(&mutex);
 	}
 	return NULL;
@@ -38,6 +40,7 @@ void* consumer(void* args)
 		if (queue_is_full())
 			pthread_cond_signal(&pcond);
 		printf("%i\n", queue_dequeue());
+		iteration_counter--;
 		pthread_mutex_unlock(&mutex);
 	}
 	return NULL;
@@ -47,6 +50,8 @@ int main(void)
 {
 	queue_init();
 	pthread_mutex_init(&mutex, NULL);
+	
+	
 	pthread_cond_init(&pcond, NULL);
 	pthread_cond_init(&ccond, NULL);
 	
@@ -56,5 +61,11 @@ int main(void)
 	
 	pthread_join(thProducer, NULL);
 	pthread_join(thConsumer, NULL);
+	
+	if (iteration_counter == 0)
+		printf("The program completed its work with success.\n");
+	else
+		printf("The program completed its work without success.\n");
+	
 	return 0;
 }
